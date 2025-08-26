@@ -18,7 +18,7 @@ class DDIMSampler(object):
 
     def register_buffer(self, name, attr):
         if type(attr) == torch.Tensor:
-            if attr.device != torch.device("cuda"):
+            if attr.device != torch.device("cuda") and torch.cuda.is_available():
                 attr = attr.to(torch.device("cuda"))
         setattr(self, name, attr)
 
@@ -305,7 +305,7 @@ class DDIMSampler(object):
     @torch.no_grad()
     def encode_ddim(self, img, num_steps, conditioning=None, unconditional_conditioning=None ,unconditional_guidance_scale=1., \
                     end_step=999, callback_ddim_timesteps=None, img_callback=None):
-        
+
         print(f"Running DDIM inversion with {num_steps} timesteps")
         if num_steps == 999:
             T = 999
@@ -362,7 +362,7 @@ class DDIMSampler(object):
         # direction pointing to x_t
         dir_xt = (1. - a_next).sqrt() * e_t
         x_next = a_next.sqrt() * pred_x0 + dir_xt
-        return x_next, pred_x0   
+        return x_next, pred_x0
 
     @torch.no_grad()
     def stochastic_encode(self, x0, t, use_original_steps=False, noise=None):
